@@ -1,0 +1,126 @@
+# DigitalOcean App Platform configuration for ChefMax Backend
+name: chefmax-backend
+region: nyc3
+
+services:
+  - name: api
+    source_dir: /back
+    github:
+      repo: chefmax/chefmax-back
+      branch: main
+      deploy_on_push: true
+    
+    dockerfile_path: back/Dockerfile
+    
+    instance_count: 2
+    instance_size_slug: basic-xxs
+    
+    http_port: 3000
+    
+    health_check:
+      http_path: /health
+      initial_delay_seconds: 30
+      period_seconds: 10
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 3
+    
+    routes:
+      - path: /api
+        preserve_path_prefix: true
+      - path: /api-docs
+        preserve_path_prefix: true
+      - path: /health
+        preserve_path_prefix: true
+    
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: API_VERSION
+        value: v1
+      - key: DATABASE_URL
+        value: ${chefmax-db.DATABASE_URL}
+      - key: REDIS_URL
+        value: ${chefmax-redis.REDIS_URL}
+      - key: JWT_SECRET
+        value: ${JWT_SECRET}
+        type: SECRET
+      - key: JWT_REFRESH_SECRET
+        value: ${JWT_REFRESH_SECRET}
+        type: SECRET
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        value: ${SMTP_USER}
+        type: SECRET
+      - key: SMTP_PASS
+        value: ${SMTP_PASS}
+        type: SECRET
+      - key: FROM_EMAIL
+        value: noreply@chefmaxlatam.com
+      - key: FROM_NAME
+        value: ChefMax LATAM
+      - key: FRONTEND_URL
+        value: https://chefmaxlatam.com
+      - key: ADMIN_FRONTEND_URL
+        value: https://admin.chefmaxlatam.com
+      - key: DO_SPACES_KEY
+        value: ${DO_SPACES_KEY}
+        type: SECRET
+      - key: DO_SPACES_SECRET
+        value: ${DO_SPACES_SECRET}
+        type: SECRET
+      - key: DO_SPACES_ENDPOINT
+        value: https://nyc3.digitaloceanspaces.com
+      - key: DO_SPACES_BUCKET
+        value: chefmax-files
+      - key: MAX_FILE_SIZE
+        value: 52428800
+      - key: UPLOAD_PATH
+        value: /tmp/uploads
+      - key: ALLOWED_FILE_TYPES
+        value: .xlsx,.xls,.csv,.pdf
+      - key: LOG_LEVEL
+        value: info
+      - key: BCRYPT_ROUNDS
+        value: "12"
+      - key: RATE_LIMIT_WINDOW
+        value: 15m
+      - key: RATE_LIMIT_MAX
+        value: "100"
+
+databases:
+  - name: chefmax-db
+    engine: PG
+    version: "15"
+    size: db-s-1vcpu-1gb
+    num_nodes: 1
+    production: true
+
+  - name: chefmax-redis
+    engine: REDIS
+    version: "7"
+    size: db-s-1vcpu-1gb
+    num_nodes: 1
+    production: true
+
+domains:
+  - domain: api.chefmaxlatam.com
+    type: PRIMARY
+    wildcard: false
+    certificate_id: ${SSL_CERTIFICATE_ID}
+
+alerts:
+  - rule: CPU_UTILIZATION
+    value: 80
+    operator: GREATER_THAN
+  - rule: MEM_UTILIZATION
+    value: 85
+    operator: GREATER_THAN
+  - rule: RESTART_COUNT
+    value: 5
+    operator: GREATER_THAN

@@ -1,0 +1,143 @@
+name: Deploy Backend to Digital Ocean
+
+on:
+  push:
+    branches: [main, production]
+    paths: ['back/**']
+  pull_request:
+    branches: [main]
+    paths: ['back/**']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: chefmax_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: back/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./back
+        run: npm ci
+
+      - name: Run linting
+        working-directory: ./back
+        run: npm run lint
+
+      - name: Run type checking
+        working-directory: ./back
+        run: npm run typecheck
+
+      - name: Run tests
+        working-directory: ./back
+        run: npm test
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://test:test@localhost:5432/chefmax_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-secret
+
+      - name: Build application
+        working-directory: ./back
+        run: npm run build
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Build Docker image
+        working-directory: ./back
+        run: |
+          docker build -t chefmax-backend:${{ github.sha }} .
+          docker tag chefmax-backend:${{ github.sha }} chefmax-backend:latest
+
+      - name: Login to DigitalOcean Container Registry
+        run: doctl registry login --expiry-seconds 1200
+
+      - name: Push to DigitalOcean Container Registry
+        run: |
+          docker tag chefmax-backend:${{ github.sha }} registry.digitalocean.com/chefmax/backend:${{ github.sha }}
+          docker tag chefmax-backend:${{ github.sha }} registry.digitalocean.com/chefmax/backend:latest
+          docker push registry.digitalocean.com/chefmax/backend:${{ github.sha }}
+          docker push registry.digitalocean.com/chefmax/backend:latest
+
+      - name: Update DigitalOcean App
+        run: |
+          doctl apps update ${{ secrets.BACKEND_APP_ID }} --spec .do/backend-app.yaml
+
+      - name: Wait for deployment
+        run: |
+          doctl apps wait ${{ secrets.BACKEND_APP_ID }}
+
+  deploy-production:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/production' && github.event_name == 'push'
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Build and deploy to production
+        working-directory: ./back
+        run: |
+          docker build -t chefmax-backend:prod-${{ github.sha }} .
+          docker tag chefmax-backend:prod-${{ github.sha }} registry.digitalocean.com/chefmax/backend:production
+          docker push registry.digitalocean.com/chefmax/backend:production
+          doctl apps update ${{ secrets.PRODUCTION_APP_ID }} --spec .do/production-app.yaml
+
+      - name: Notify deployment
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#deployments'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        if: always()
