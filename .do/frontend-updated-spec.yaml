@@ -1,0 +1,45 @@
+name: chefmax-frontend-new
+region: nyc
+domains:
+- domain: chefmaxlatam.com
+  type: PRIMARY
+  zone: chefmaxlatam.com
+features:
+- buildpack-stack=ubuntu-22
+services:
+- name: web
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  build_command: npm run build
+  run_command: npm start
+  source_dir: /
+  github:
+    repo: systemadminlightinnoivationsla/chefmax-front
+    branch: main
+    deploy_on_push: true
+  envs:
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
+  - key: VITE_API_URL
+    scope: BUILD_TIME
+    value: https://api.chefmaxlatam.com/api/v1
+  - key: VITE_BACKEND_URL
+    scope: BUILD_TIME
+    value: https://api.chefmaxlatam.com
+  - key: VITE_APP_NAME
+    scope: BUILD_TIME
+    value: ChefMax LATAM
+  - key: VITE_APP_VERSION
+    scope: BUILD_TIME
+    value: 2.0.0
+  - key: VITE_ENVIRONMENT
+    scope: BUILD_TIME
+    value: production
+  - key: PORT
+    scope: RUN_TIME
+    value: "8080"
+  http_port: 8080
+  routes:
+  - path: /

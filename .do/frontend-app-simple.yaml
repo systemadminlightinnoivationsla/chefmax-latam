@@ -1,0 +1,34 @@
+#
+# ChefMax Frontend - Simple Configuration
+# Clean React deployment with current local code
+#
+name: chefmax-frontend-new
+region: nyc1
+
+static_sites:
+- name: web
+  github:
+    repo: systemadminlightinnoivationsla/chefmax-front
+    branch: main
+    deploy_on_push: true
+  build_command: npm run build
+  output_dir: /dist
+  environment_slug: node-js
+  
+  # Variables de entorno para build
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: VITE_API_URL
+    value: "https://chefmax-backend.ondigitalocean.app/api/v1"
+  - key: VITE_BACKEND_URL
+    value: "https://chefmax-backend.ondigitalocean.app"
+  - key: VITE_APP_NAME
+    value: "ChefMax LATAM"
+  - key: VITE_APP_VERSION
+    value: "2.0.0"
+  - key: VITE_ENVIRONMENT
+    value: "production"
+
+  # Configuración de routing para SPA
+  catchall_document: index.html

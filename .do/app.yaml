@@ -1,0 +1,77 @@
+name: chefmax-system
+region: nyc1
+services:
+  - name: chefmax-backend
+    source_dir: /back
+    github:
+      repo: your-org/chefmax
+      branch: main
+    run_command: npm start
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 3001
+    health_check:
+      http_path: /health
+    env:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3001"
+      - key: API_VERSION
+        value: v1
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: JWT_REFRESH_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: REDIS_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: SPACES_ACCESS_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: SPACES_SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: SPACES_ENDPOINT
+        value: nyc3.digitaloceanspaces.com
+      - key: SPACES_BUCKET_NAME
+        value: chefmax-media
+      - key: SPACES_CDN_ENDPOINT
+        value: https://chefmax-media.nyc3.cdn.digitaloceanspaces.com
+      - key: FRONTEND_URL
+        value: https://chefmax-system-frontend.ondigitalocean.app
+      - key: RATE_LIMIT_MAX
+        value: "100"
+
+  - name: chefmax-frontend  
+    source_dir: /front
+    github:
+      repo: your-org/chefmax
+      branch: main
+    run_command: npm run preview
+    build_command: npm run build
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 4173
+    routes:
+      - path: /
+    env:
+      - key: VITE_API_URL
+        value: https://chefmax-system-backend.ondigitalocean.app/api/v1
+
+databases:
+  - name: chefmax-postgres
+    engine: PG
+    version: "15"
+    production: true
+    cluster_name: chefmax-db-cluster
+    db_name: chefmax
+    db_user: chefmax_user
+    size: db-s-1vcpu-1gb

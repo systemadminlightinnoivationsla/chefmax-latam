@@ -65,7 +65,7 @@ jobs:
         run: npm test
         env:
           NODE_ENV: test
-          DATABASE_URL: postgresql://test:test@localhost:5432/chefmax_test
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           REDIS_URL: redis://localhost:6379
           JWT_SECRET: test-secret
 

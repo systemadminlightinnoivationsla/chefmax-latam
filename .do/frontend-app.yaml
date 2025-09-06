@@ -1,0 +1,70 @@
+#
+# ChefMax Frontend - DigitalOcean App Platform Configuration
+# Aplicación React independiente conectada al backend via API
+#
+
+name: chefmax-frontend
+region: nyc1
+
+static_sites:
+- name: web
+  github:
+    repo: systemadminlightinnoivationsla/chefmax-front
+    branch: main
+    deploy_on_push: true
+  build_command: npm run build
+  output_dir: /dist
+  environment_slug: node-js
+  
+  # Variables de entorno para build
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: VITE_API_URL
+    value: "https://chefmax-backend.ondigitalocean.app"
+  - key: VITE_BACKEND_URL
+    value: "https://chefmax-backend.ondigitalocean.app"
+  - key: VITE_APP_NAME
+    value: "ChefMax LATAM"
+  - key: VITE_APP_VERSION
+    value: "1.0.0"
+  - key: VITE_ENVIRONMENT
+    value: "production"
+
+  # Configuración de routing para SPA
+  catchall_document: index.html
+  
+  # Headers de seguridad
+  headers:
+  - pattern: "**/*"
+    headers:
+    - key: X-Frame-Options
+      value: DENY
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: Referrer-Policy
+      value: strict-origin-when-cross-origin
+    - key: Permissions-Policy
+      value: camera=(), microphone=(), geolocation=()
+  
+  # Cache headers para assets estáticos
+  - pattern: "**/*.{js,css,png,jpg,jpeg,gif,ico,svg,woff,woff2,ttf,eot}"
+    headers:
+    - key: Cache-Control
+      value: public, max-age=31536000, immutable
+
+# Configuración de dominios (opcional)
+domains:
+- domain: chefmaxlatam.com
+  type: PRIMARY
+  wildcard: false
+  zone: chefmaxlatam.com
+- domain: www.chefmaxlatam.com
+  type: ALIAS
+  wildcard: false
+  zone: chefmaxlatam.com
+
+# Alertas específicas para frontend
+alerts:
+- rule: DEPLOYMENT_FAILED
+- rule: DOMAIN_FAILED

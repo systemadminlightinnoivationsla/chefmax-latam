@@ -1,0 +1,66 @@
+name: chefmax-backend
+region: nyc
+features:
+- buildpack-stack=ubuntu-22
+services:
+- name: api
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  build_command: npm run build
+  run_command: npm start
+  source_dir: /
+  github:
+    repo: systemadminlightinnoivationsla/chefmax-backend
+    branch: clean-master
+    deploy_on_push: true
+  envs:
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
+  - key: PORT
+    scope: RUN_AND_BUILD_TIME
+    value: "8080"
+  - key: DATABASE_URL
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:SbjrE2O8wXfnv9ZAagSOwz/P9sQCg8Rf:33u7/AmMq+uaxdnyOT32uw==]
+  - key: REDIS_URL
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:wTNYWLKyAurJURi2mLWBwo9wzfn684iJ:h4/ZELr5YMc5Fi3HbZ7V9w==]
+  - key: JWT_SECRET
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:Lcjr+0salzikcwDVdkdu05xUAzI5+T8Q:oL06vdDoPtodQ9doXpHx6g==]
+  - key: JWT_REFRESH_SECRET
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:GzIn0CdQfWB7oBR0szc6h3KV3ol870Ah:jPOvQmDWpOq3Ml2BG7IPIA==]
+  - key: FRONTEND_URL
+    scope: RUN_AND_BUILD_TIME
+    value: https://chefmax-frontend-new-tkenl.ondigitalocean.app
+  - key: FRONTEND_PROD_URL
+    scope: RUN_AND_BUILD_TIME
+    value: https://chefmaxlatam.com
+  - key: CORS_ORIGINS
+    scope: RUN_AND_BUILD_TIME
+    value: https://chefmax-frontend-new-tkenl.ondigitalocean.app,https://chefmaxlatam.com
+  - key: SPACES_ACCESS_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:NFYGm3JjimR8yQKg/gN1um+hVf8Mj13t:awqjpTfK7RyAfg8rPpbsKQ==]
+  - key: SPACES_SECRET_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:7ZFkvEqJQ71PbrWaktWfDCoz1rrUC14H:oV7yBZ0m7DkjRSZwDbjH/g==]
+  - key: SPACES_BUCKET_NAME
+    scope: RUN_AND_BUILD_TIME
+    value: chefmax-media
+  - key: SPACES_ENDPOINT
+    scope: RUN_AND_BUILD_TIME
+    value: nyc3.digitaloceanspaces.com
+  - key: SPACES_REGION
+    scope: RUN_AND_BUILD_TIME
+    value: nyc3
+  http_port: 8080

@@ -1,0 +1,63 @@
+#
+# ChefMax Backend - Local Repository Configuration
+# DigitalOcean App Platform with local repository
+#
+
+name: chefmax-backend
+region: nyc1
+
+services:
+- name: api
+  source_dir: /back
+  github:
+    repo: chefmax/chefmax-system
+    branch: main
+    deploy_on_push: true
+  build_command: npm install && npm run build
+  run_command: npm start
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 3001
+  
+  health_check:
+    http_path: /health
+    initial_delay_seconds: 60
+    period_seconds: 30
+    timeout_seconds: 10
+    success_threshold: 1
+    failure_threshold: 3
+
+  # Variables de entorno mínimas para deployment inicial
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: "3001"
+  - key: DATABASE_URL
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+  - key: JWT_SECRET
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+  - key: FRONTEND_URL
+    value: "https://chefmax-frontend.ondigitalocean.app"
+
+  # CORS y configuración de dominio
+  routes:
+  - path: /
+
+# Base de datos PostgreSQL
+databases:
+- name: chefmax-db
+  engine: PG
+  version: "15"
+  size: basic-xxs
+  num_nodes: 1
+
+# Alertas básicas
+alerts:
+- rule: CPU_UTILIZATION
+  value: 85
+- rule: MEM_UTILIZATION
+  value: 85
