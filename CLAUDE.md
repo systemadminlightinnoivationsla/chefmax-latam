@@ -40,7 +40,8 @@ npm run db:migrate   # Run latest migrations
 npm run db:rollback  # Rollback migrations  
 npm run db:seed      # Run database seeds
 npm run db:reset     # Rollback, migrate, and seed
-# Requires DigitalOcean PostgreSQL configured via back/.env (do not start local Postgres)
+# Uses PostgreSQL with connection pooling and SSL
+# Database schema: users → suppliers → products → orders → file_uploads
 ```
 
 ### Docker Development
@@ -86,9 +87,10 @@ ChefMax LATAM now features **multiple production-ready landing page implementati
 - **React 18 + TypeScript** with Vite for lightning-fast development
 - **Framer Motion** for sophisticated animations and micro-interactions
 - **Advanced State Management**: React Query + Context API + localStorage persistence
-- **Modern UI Components**: Radix UI + Headless UI + custom design system
-- **Cart Context**: Global state management for shopping cart functionality
-- **Geolocation Services**: IP-based country detection with WhatsApp integration
+- **Modern UI Components**: Radix UI + Headless UI + Bootstrap 5.3 + custom design system
+- **Cart Context**: Global state management with persistent shopping cart (localStorage)
+- **Geolocation Services**: IP-based LATAM country detection with WhatsApp integration
+- **SEO Optimization**: React Helmet Async + structured data + dynamic meta tags
 
 ## High-Level Architecture
 
@@ -210,11 +212,13 @@ ChefMax LATAM now features **multiple production-ready landing page implementati
 ### Backend Architecture (Express + TypeScript)
 
 #### Enhanced Server Structure (`back/src/server.ts`)
-- **Express server** with comprehensive middleware stack
-- **E-commerce APIs**: Cart, checkout, orders, and payment processing
-- **Security**: Helmet, CORS, rate limiting, express-validator
-- **Swagger documentation** auto-generated from JSDoc  
-- **Graceful shutdown** and error handling
+- **Class-based Express server** with comprehensive middleware stack
+- **E-commerce APIs**: Cart, checkout, orders, and payment processing  
+- **Real-time features**: Socket.IO for live updates and notifications
+- **Security**: Helmet CSP, CORS, rate limiting (100 req/15min), express-validator
+- **Swagger documentation** auto-generated from JSDoc at `/api-docs`
+- **Health checks** at `/health` endpoint with uptime and version info
+- **Graceful shutdown** with proper cleanup (Redis, Socket.IO, HTTP server)
 
 #### Key Backend Files
 - `back/src/processors/ExcelProcessor.ts` - Legacy Excel processing engine
@@ -259,14 +263,14 @@ ChefMax LATAM now features **multiple production-ready landing page implementati
 - **Session management**: Redis-based token storage
 
 ### Database Schema Evolution
-**Enhanced multi-tenant design:**
-- `users` (authentication + customer profiles) 
-- `suppliers` (format configs as JSONB)
-- `products` (catalog with SEO and e-commerce fields)
-- `cart_items` (persistent shopping carts)
-- `orders` (complete e-commerce transactions)
-- `file_uploads` (legacy Excel processing audit trail)
-- `quotations` + `inventory_items` (B2B functionality)
+**Enhanced multi-tenant PostgreSQL design with Knex.js:**
+- `users` (UUID primary keys, roles: superadmin/admin/client/viewer, JSONB profiles)
+- `suppliers` (format configurations as JSONB for Excel processing) 
+- `products` (e-commerce catalog with media, SEO fields, inventory tracking)
+- `orders` + `order_items` (complete e-commerce transaction system)
+- `media_files` + `product_media` (image/video asset management)
+- `file_uploads` (Excel processing audit trail with Socket.IO updates)
+- `quotations` + `inventory_items` (B2B functionality and bulk processing)
 
 ### Testing & Quality Assurance
 - **Frontend**: Vitest + React Testing Library for component tests
@@ -280,17 +284,34 @@ ChefMax LATAM now features **multiple production-ready landing page implementati
 
 ### Required Environment Variables
 **Backend (.env)**:
-```
-DATABASE_URL=postgresql://USER:PASSWORD@DB-HOST-DO:25060/DBNAME?sslmode=require
+```bash
+# Database (PostgreSQL with SSL)
+DATABASE_URL=postgresql://USER:PASSWORD@DB-HOST:25060/DBNAME?sslmode=require
+DB_HOST=your-db-host
+DB_PORT=25060
+DB_NAME=your-db-name
+DB_USER=your-db-user
+DB_PASSWORD=your-db-password
+DB_SSL=true
+
+# Services
 REDIS_URL=redis://localhost:6379
-JWT_SECRET=your-secret-key
+JWT_SECRET=your-jwt-secret-key
+
+# CORS & API
 FRONTEND_URL=http://localhost:3000
-STRIPE_SECRET_KEY=sk_test_... # Payment processing
-WHATSAPP_API_TOKEN=your-token # WhatsApp Business API
+FRONTEND_PROD_URL=https://chefmax-frontend.ondigitalocean.app
+API_VERSION=v1
+PORT=3001
+RATE_LIMIT_MAX=100
+
+# External APIs (optional)
+STRIPE_SECRET_KEY=sk_test_...
+WHATSAPP_API_TOKEN=your-token
 ```
 
 **Frontend (.env.local)**:
-```
+```bash
 VITE_API_URL=http://localhost:3001/api/v1
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
 VITE_GOOGLE_ANALYTICS_ID=G-...
