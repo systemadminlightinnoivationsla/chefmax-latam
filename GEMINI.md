@@ -2,6 +2,10 @@
 
 This file provides guidance to Google Gemini when working with code in this repository.
 
+## Diagrams
+
+For detailed architecture and process flows, see `docs/DIAGRAMAS_FLUJO.md` in this repository.
+
 ## Development Commands
 
 ### Backend (Node.js + TypeScript)

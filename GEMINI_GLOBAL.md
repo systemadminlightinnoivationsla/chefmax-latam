@@ -22,6 +22,10 @@ This repository serves as the ChefMax documentation and operations hub. Use this
 
 No application code is present here; all builds/tests run in the code repos.
 
+## Diagrams
+
+Detailed system flows and architecture diagrams: `docs/DIAGRAMAS_FLUJO.md`.
+
 ## DigitalOcean App Platform — Operations
 
 Redeploy existing apps by App ID:

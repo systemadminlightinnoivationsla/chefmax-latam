@@ -33,6 +33,11 @@ Este repositorio contiene documentación operativa, guías y scripts de desplieg
 
 Detalles técnicos, endpoints, pruebas y configuración viven en cada repositorio de código.
 
+## 📚 Documentación
+
+- Guía de despliegue: `docs/DEPLOYMENT.md`
+- Diagramas de flujo detallados: `docs/DIAGRAMAS_FLUJO.md`
+
 ## 🚀 Despliegue (DigitalOcean)
 
 - Consulta `docs/DEPLOYMENT.md` para:
