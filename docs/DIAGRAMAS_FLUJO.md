@@ -8,7 +8,20 @@ Referencias:
 - Guía de despliegue: `docs/DEPLOYMENT.md`
 - Nota de puertos locales: `PUERTO_FRONTEND.md`
 
-## 1) Arquitectura General del Sistema
+## Índice
+
+- [1) Arquitectura General del Sistema](#arquitectura)
+- [2) Autenticación y Autorización (JWT + Refresh)](#auth)
+- [3) Flujo de Procesamiento de Excel Multi‑Formato](#excel)
+- [4) Gestión de Medios (Imágenes/Videos por Producto)](#media)
+- [5) Carrito y Checkout (E‑commerce)](#carrito)
+- [6) Geolocalización y WhatsApp (LATAM)](#geo)
+- [7) CORS y Networking (Local y Producción)](#cors)
+- [8) Despliegue (DigitalOcean App Platform)](#deploy)
+- [9) Monitoreo y Logs](#monitoreo)
+- [10) Modelo de Datos (ER)](#er)
+
+## 1) Arquitectura General del Sistema {#arquitectura}
 
 ```mermaid
 flowchart LR
@@ -40,7 +53,7 @@ flowchart LR
   G -. despliegue .-> A
 ```
 
-## 2) Autenticación y Autorización (JWT + Refresh)
+## 2) Autenticación y Autorización (JWT + Refresh) {#auth}
 
 ```mermaid
 sequenceDiagram
@@ -74,7 +87,7 @@ sequenceDiagram
   B-->>F: 204
 ```
 
-## 3) Flujo de Procesamiento de Excel Multi‑Formato
+## 3) Flujo de Procesamiento de Excel Multi‑Formato {#excel}
 
 ```mermaid
 flowchart TD
@@ -97,7 +110,7 @@ flowchart TD
   O --> P[Respuesta a Frontend:\n- totales\n- errores/advertencias\n- IDs creados]
 ```
 
-## 4) Gestión de Medios (Imágenes/Videos por Producto)
+## 4) Gestión de Medios (Imágenes/Videos por Producto) {#media}
 
 ```mermaid
 sequenceDiagram
@@ -126,7 +139,7 @@ sequenceDiagram
   B-->>F: 204
 ```
 
-## 5) Carrito y Checkout (E‑commerce)
+## 5) Carrito y Checkout (E‑commerce) {#carrito}
 
 ```mermaid
 flowchart LR
@@ -144,7 +157,7 @@ flowchart LR
   L --> M[Confirmación + notificaciones]
 ```
 
-## 6) Geolocalización y WhatsApp (LATAM)
+## 6) Geolocalización y WhatsApp (LATAM) {#geo}
 
 ```mermaid
 flowchart TD
@@ -164,7 +177,7 @@ flowchart TD
   I --> M[Cachear en localStorage]
 ```
 
-## 7) CORS y Networking (Local y Producción)
+## 7) CORS y Networking (Local y Producción) {#cors}
 
 ```mermaid
 sequenceDiagram
@@ -181,7 +194,7 @@ sequenceDiagram
   Note over B: CORS_ORIGINS incluye http://localhost:3000 y dominios de producción
 ```
 
-## 8) Despliegue (DigitalOcean App Platform)
+## 8) Despliegue (DigitalOcean App Platform) {#deploy}
 
 ```mermaid
 flowchart LR
@@ -196,7 +209,7 @@ flowchart LR
   Live --> Logs[Logs build/deploy/run]
 ```
 
-## 9) Monitoreo y Logs
+## 9) Monitoreo y Logs {#monitoreo}
 
 ```mermaid
 flowchart TD
@@ -208,7 +221,7 @@ flowchart TD
   F -- Error --> H[Inspección logs + alertas]
 ```
 
-## 10) Modelo de Datos (ER)
+## 10) Modelo de Datos (ER) {#er}
 
 ```mermaid
 erDiagram
