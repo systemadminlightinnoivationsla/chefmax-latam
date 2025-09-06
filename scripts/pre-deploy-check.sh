@@ -63,122 +63,41 @@ fi
 
 echo ""
 
-# 2. Check Backend Dependencies and Build
-echo "📦 Validating Backend..."
-echo "------------------------"
+echo "📦 Validating Backend Spec..."
+echo "----------------------------"
 
-if [ -f "back/package.json" ]; then
-    echo_success "Backend package.json found"
-    
-    cd back/
-    
-    # Check if dependencies are installed
-    if [ -d "node_modules" ]; then
-        echo_success "Backend dependencies are installed"
-    else
-        echo_warning "Installing backend dependencies..."
-        npm install
-    fi
-    
-    # Test TypeScript compilation
-    if npm run typecheck > /dev/null 2>&1; then
-        echo_success "Backend TypeScript validation passed"
-    else
-        echo_error "Backend TypeScript validation failed"
-    fi
-    
-    # Test build
-    if npm run build > /dev/null 2>&1; then
-        echo_success "Backend build successful"
-    else
-        echo_error "Backend build failed"
-    fi
-    
-    # Check if server starts
-    if [ -f "dist/server.js" ]; then
-        echo_success "Backend build output exists"
-    else
-        echo_error "Backend build output missing"
-    fi
-    
-    cd ..
+if [ -f "backend-update.yaml" ]; then
+    echo_success "Found backend-update.yaml (spec de DO)"
 else
-    echo_error "Backend package.json not found"
+    echo_warning "backend-update.yaml missing (usa FRONTEND/BE para desplegar desde sus repos)"
 fi
 
 echo ""
 
-# 3. Check Frontend Dependencies and Build
-echo "🌐 Validating Frontend..."
-echo "-------------------------"
+echo "🌐 Validating Frontend Spec..."
+echo "-----------------------------"
 
-if [ -f "front/package.json" ]; then
-    echo_success "Frontend package.json found"
-    
-    cd front/
-    
-    # Check if dependencies are installed
-    if [ -d "node_modules" ]; then
-        echo_success "Frontend dependencies are installed"
-    else
-        echo_warning "Installing frontend dependencies..."
-        npm install
-    fi
-    
-    # Test TypeScript compilation
-    if npm run typecheck > /dev/null 2>&1; then
-        echo_success "Frontend TypeScript validation passed"
-    else
-        echo_error "Frontend TypeScript validation failed"
-    fi
-    
-    # Test build
-    if npm run build > /dev/null 2>&1; then
-        echo_success "Frontend build successful"
-    else
-        echo_error "Frontend build failed"
-    fi
-    
-    # Check if build output exists
-    if [ -d "dist" ]; then
-        echo_success "Frontend build output exists"
-    else
-        echo_error "Frontend build output missing"
-    fi
-    
-    cd ..
+if [ -f ".do/frontend-app.yaml" ]; then
+    echo_success "Found .do/frontend-app.yaml"
 else
-    echo_error "Frontend package.json not found"
+    echo_warning ".do/frontend-app.yaml missing (redeploy vía App ID)"
 fi
 
 echo ""
 
-# 4. Check Configuration Files
 echo "⚙️  Validating Configuration..."
 echo "------------------------------"
 
-if [ -f ".do/backend-app.yaml" ]; then
-    echo_success "Backend DigitalOcean config found"
+if [ -f "backend-update.yaml" ]; then
+    echo_success "Backend DO spec present (backend-update.yaml)"
 else
-    echo_error "Backend DigitalOcean config missing"
+    echo_warning "No backend DO spec in this repo"
 fi
 
 if [ -f ".do/frontend-app.yaml" ]; then
-    echo_success "Frontend DigitalOcean config found"
+    echo_success "Frontend DO spec present (.do/frontend-app.yaml)"
 else
-    echo_error "Frontend DigitalOcean config missing"
-fi
-
-if [ -f "front/.env.production" ]; then
-    echo_success "Frontend production environment config found"
-else
-    echo_warning "Frontend production environment config missing"
-fi
-
-if [ -f "back/.env.example" ]; then
-    echo_success "Backend environment example found"
-else
-    echo_warning "Backend environment example missing"
+    echo_warning "No frontend DO spec in this repo"
 fi
 
 echo ""

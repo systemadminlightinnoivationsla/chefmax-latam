@@ -24,25 +24,32 @@ fi
 
 echo "✅ Environment checks passed"
 
-# Build and validate locally first
-echo "📦 Building backend locally..."
-cd back/
-npm run build
-npm run typecheck
-echo "✅ Local build successful"
+# Resolve spec file
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+APP_SPEC="${BACKEND_APP_SPEC:-$PROJECT_DIR/backend-update.yaml}"
 
-cd ..
+if [ ! -f "$APP_SPEC" ]; then
+    echo "❌ Spec file not found: $APP_SPEC"
+    echo "   Set BACKEND_APP_SPEC or place backend-update.yaml at repo root"
+    exit 1
+fi
+echo "📄 Using spec: $APP_SPEC"
 
 # Deploy backend
 echo "🚀 Deploying backend to DigitalOcean..."
-if doctl apps create --spec .do/backend-app.yaml --wait; then
+if doctl apps create --spec "$APP_SPEC" --wait; then
     echo "✅ Backend deployment successful!"
     
     # Get app info
     APP_ID=$(doctl apps list --format ID,Name | grep chefmax-backend | awk '{print $1}')
     if [ -n "$APP_ID" ]; then
         echo "📱 App ID: $APP_ID"
-        echo "🔗 App URL: https://chefmax-backend.ondigitalocean.app"
+        if [ -n "$BACKEND_URL" ]; then
+            echo "🔗 App URL: $BACKEND_URL"
+        else
+            echo "🔗 App URL: (configure BACKEND_URL to enable health checks)"
+        fi
         
         # Show deployment status
         echo "📊 Deployment status:"
@@ -50,12 +57,14 @@ if doctl apps create --spec .do/backend-app.yaml --wait; then
     fi
     
     # Test health endpoint
-    echo "🏥 Testing health endpoint..."
-    sleep 30
-    if curl -f https://chefmax-backend.ondigitalocean.app/health; then
-        echo "✅ Backend is healthy!"
-    else
-        echo "⚠️  Health check failed, but deployment completed"
+    if [ -n "$BACKEND_URL" ]; then
+        echo "🏥 Testing health endpoint..."
+        sleep 30
+        if curl -f "$BACKEND_URL/health"; then
+            echo "✅ Backend is healthy!"
+        else
+            echo "⚠️  Health check failed, but deployment completed"
+        fi
     fi
     
 else
@@ -65,5 +74,7 @@ fi
 
 echo ""
 echo "🎉 Backend deployment completed successfully!"
-echo "🔗 Backend URL: https://chefmax-backend.ondigitalocean.app"
+if [ -n "$BACKEND_URL" ]; then
+    echo "🔗 Backend URL: $BACKEND_URL"
+fi
 echo "📊 Monitor: https://cloud.digitalocean.com/apps"

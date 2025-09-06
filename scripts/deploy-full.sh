@@ -50,9 +50,9 @@ echo ""
 echo "🔄 STEP 3: Testing System Integration..."
 echo "---------------------------------------"
 
-# Get app URLs
-BACKEND_URL="https://chefmax-backend.ondigitalocean.app"
-FRONTEND_URL="https://chefmax-frontend.ondigitalocean.app"
+# Get app URLs (override with env if provided)
+BACKEND_URL="${BACKEND_URL:-https://chefmax-backend.ondigitalocean.app}"
+FRONTEND_URL="${FRONTEND_URL:-https://chefmax-frontend.ondigitalocean.app}"
 
 echo "🏥 Testing backend health..."
 if curl -f "$BACKEND_URL/health"; then
