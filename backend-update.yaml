@@ -1,0 +1,81 @@
+domains:
+- domain: api.chefmaxlatam.com
+  type: PRIMARY
+  zone: chefmaxlatam.com
+ingress:
+  rules:
+  - component:
+      name: api
+    match:
+      path:
+        prefix: /
+name: chefmax-backend
+region: nyc
+services:
+- build_command: npm run build
+  environment_slug: node-js
+  envs:
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
+  - key: PORT
+    scope: RUN_AND_BUILD_TIME
+    value: "3001"
+  - key: DATABASE_URL
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:mI31r/vb/Rwq0WZfAQ6Az8N9YTNOig6R:PBERd4ymCiHrbyhfMAZ33g==]
+  - key: REDIS_URL
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:taKUvgQJKdsNcpa9oQUuYUM828bfrQZt:iO2GyHCv90FUZK5macvE5w==]
+  - key: JWT_SECRET
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:W0P2TSppKZyLK/nW4xRJ+IF69C3gTr3F:HBae2mMSJd4LSvm1HxQdEg==]
+  - key: JWT_REFRESH_SECRET
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:bn1Lub4j2Zg7+3T5evMWlA5x/eVUGx0Z:vmbPa9oU0o7vrmP7ZnH/Mw==]
+  - key: FRONTEND_URL
+    scope: RUN_AND_BUILD_TIME
+    value: https://chefmax-frontend-new-tkenl.ondigitalocean.app
+  - key: FRONTEND_PROD_URL
+    scope: RUN_AND_BUILD_TIME
+    value: https://chefmax-frontend-new-tkenl.ondigitalocean.app
+  - key: CORS_ORIGINS
+    scope: RUN_AND_BUILD_TIME
+    value: https://chefmax-frontend-new-tkenl.ondigitalocean.app,https://chefmaxlatam.com
+  - key: SPACES_ACCESS_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:ob5ziF9/4CgGqTX52y+1/9gYdIRONHsH:WEDqROtNaE4VcffDMXfQrA==]
+  - key: SPACES_SECRET_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:oGZ0dlKRVXopgMc+57GsjL9Z52irGGRl:1V6r/tiqEWPEfIXJgdjPVg==]
+  - key: SPACES_BUCKET_NAME
+    scope: RUN_AND_BUILD_TIME
+    value: chefmax-media
+  - key: SPACES_ENDPOINT
+    scope: RUN_AND_BUILD_TIME
+    value: nyc3.digitaloceanspaces.com
+  - key: SPACES_REGION
+    scope: RUN_AND_BUILD_TIME
+    value: nyc3
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: systemadminlightinnoivationsla/chefmax-backend
+  health_check:
+    failure_threshold: 3
+    http_path: /health
+    initial_delay_seconds: 60
+    period_seconds: 30
+    success_threshold: 1
+    timeout_seconds: 10
+  http_port: 3001
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  name: api
+  run_command: npm start
