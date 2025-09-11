@@ -17,6 +17,15 @@ jobs:
       run:
         working-directory: ./back
     steps:
+      - name: Check for secret
+        run: |
+          if [ -z "${{ secrets.GH_PAT }}" ]; then
+            echo "Secret is not set"
+            exit 1
+          else
+            echo "Secret is set"
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
@@ -48,6 +57,15 @@ jobs:
       run:
         working-directory: ./front
     steps:
+      - name: Check for secret
+        run: |
+          if [ -z "${{ secrets.GH_PAT }}" ]; then
+            echo "Secret is not set"
+            exit 1
+          else
+            echo "Secret is set"
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
