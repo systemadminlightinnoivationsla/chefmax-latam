@@ -1,0 +1,53 @@
+# Nombre de tu aplicación en DigitalOcean
+name: chefmax-platform
+# Región donde se desplegará la aplicación
+region: nyc
+
+# Servicios que componen tu aplicación (backend y frontend)
+services:
+  # --- Backend Service ---
+  - name: api
+    # Construye desde el Dockerfile en la carpeta 'back'
+    dockerfile_path: back/Dockerfile
+    source_dir: back/
+    # Variables de entorno. Los valores secretos se configuran en el panel de DO.
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: REDIS_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: FRONTEND_URL
+        scope: RUN_TIME
+        value: ${web.URL} # URL dinámica del frontend
+    # Ruta HTTP para acceder al backend
+    routes:
+      - path: /api
+    # Configuración de la instancia (puedes ajustarla según tus necesidades)
+    instance_size_slug: basic-xxs
+    instance_count: 1
+
+  # --- Frontend Service ---
+  - name: web
+    # Construye desde el Dockerfile en la carpeta 'front'
+    dockerfile_path: front/Dockerfile
+    source_dir: front/
+    # Variables de entorno para el frontend
+    envs:
+      - key: VITE_API_URL
+        # Apunta dinámicamente a la URL del servicio 'api'
+        value: ${api.URL}/api/v1
+        scope: BUILD_TIME
+      - key: VITE_STRIPE_PUBLISHABLE_KEY
+        scope: BUILD_TIME
+        type: SECRET # Asumiendo que es un secreto
+    # Ruta principal de tu sitio
+    routes:
+      - path: /
+    # Configuración de la instancia
+    instance_size_slug: basic-xxs
+    instance_count: 1

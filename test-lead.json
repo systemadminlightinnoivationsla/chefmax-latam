@@ -1,0 +1,17 @@
+{
+  "source": "website_contact_form",
+  "data": {
+    "name": "Juan Pérez Test",
+    "email": "juan.test@restaurante.com",
+    "phone": "+52 55 1234 5678",
+    "company": "Restaurante Test",
+    "message": "Necesito cotización para equipos de cocina industrial",
+    "interests": ["freidoras", "parrillas", "refrigeradores"]
+  },
+  "metadata": {
+    "utm_source": "google",
+    "utm_medium": "cpc",
+    "utm_campaign": "equipos_cocina_test"
+  },
+  "priority": "high"
+}
