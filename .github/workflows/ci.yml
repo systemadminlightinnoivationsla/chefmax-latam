@@ -17,27 +17,13 @@ jobs:
       run:
         working-directory: ./back
     steps:
-      - name: Check for secret
-        run: |
-          if [ -z "${{ secrets.GH_PAT }}" ]; then
-            echo "Secret is not set"
-            exit 1
-          else
-            echo "Secret is set"
-          fi
-
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          submodules: 'true'
-          token: ${{ secrets.GH_PAT }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: back/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -57,27 +43,13 @@ jobs:
       run:
         working-directory: ./front
     steps:
-      - name: Check for secret
-        run: |
-          if [ -z "${{ secrets.GH_PAT }}" ]; then
-            echo "Secret is not set"
-            exit 1
-          else
-            echo "Secret is set"
-          fi
-
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          submodules: 'true'
-          token: ${{ secrets.GH_PAT }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: front/package-lock.json
 
       - name: Install dependencies
         run: npm ci
