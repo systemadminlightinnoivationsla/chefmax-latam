@@ -1,26 +1,38 @@
 # CLAUDE.md
 
-This file provides guidance to Claude when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Proceso de Despliegue (CI/CD Automatizado)
+## Project Architecture
 
-**El despliegue en este proyecto está 100% automatizado usando un flujo de CI/CD moderno.** No se deben usar scripts manuales, comandos `docker` locales o `doctl` para desplegar.
+ChefMax is a full-stack inventory management system built as a monorepo with:
+- **Backend**: Node.js + TypeScript + Express + PostgreSQL (port 3001)
+- **Frontend**: React + TypeScript + Vite (port 3000 in development)
+- **Database**: DigitalOcean PostgreSQL (cloud-only, no local DB)
+- **Deployment**: DigitalOcean App Platform with GitHub Actions CI/CD
 
-El proceso es el siguiente:
+Key architectural components:
+- **Excel Processing**: Multi-format Excel file processing with automatic format detection
+- **Media Management**: Integration with DigitalOcean Spaces for file storage
+- **Authentication**: JWT-based auth with refresh tokens and role-based access
+- **Real-time Features**: Socket.IO for live updates
+- **Multi-tenant**: Supports multiple supplier formats and admin roles
 
-1.  **Desarrollo y Push:** El desarrollador hace `git push` a las ramas `main` o `develop`.
-2.  **Integración Continua (CI):** GitHub Actions ejecuta automáticamente el workflow definido en `.github/workflows/ci.yml`.
-    *   Este workflow tiene dos trabajos paralelos: `verify-backend` y `verify-frontend`.
-    *   Cada trabajo instala dependencias, ejecuta el linter, el chequeo de tipos y las pruebas.
-    *   **Si alguna de estas verificaciones falla, el proceso se detiene y el código no se despliega.**
-3.  **Despliegue Continuo (CD):** Si la CI es exitosa, DigitalOcean App Platform detecta el cambio en la rama.
-    *   DigitalOcean lee la configuración en `.do/app.yaml`.
-    *   Automáticamente construye las imágenes Docker para el `api` (backend) y `web` (frontend) a partir de sus respectivos `Dockerfile`.
-    *   Despliega las nuevas versiones de los servicios sin tiempo de inactividad.
+## Deployment Process (Automated CI/CD)
 
-**Tu única tarea es subir código de calidad que pase las pruebas. El resto es automático.**
+**Deployment is 100% automated** - do not use manual scripts, local docker commands, or doctl.
 
----
+1. **Push to `main` or `develop`** triggers GitHub Actions CI (.github/workflows/ci.yml)
+2. **CI verifies**: lint, typecheck, tests for both backend and frontend in parallel
+3. **If CI passes**: DigitalOcean App Platform auto-deploys using .do/app.yaml configuration
+4. **Zero downtime**: Docker images built and deployed automatically
+
+**Your only task is to push quality code that passes tests. Everything else is automatic.**
+
+## Critical Development Notes
+
+**Frontend Development**: Always runs on port 3000 (configured in vite.config.ts)
+**Database**: Always use DigitalOcean PostgreSQL - no local database setup required
+**CI/CD Troubleshooting**: If GitHub Actions fail with `npm ci` errors, ensure directories aren't configured as git submodules
 
 ## Development Commands
 
@@ -29,43 +41,44 @@ El proceso es el siguiente:
 cd back/
 npm run dev           # Development server with hot reload
 npm run build         # Compile TypeScript to dist/
-npm start             # Run production server
-npm test              # Run Jest tests
-npm run lint          # ESLint check
+npm run lint          # ESLint check  
 npm run typecheck     # TypeScript type checking
+npm test              # Run Jest tests
+npm run db:migrate    # Run database migrations (connects to DigitalOcean)
+npm run db:seed       # Populate database with sample data
 ```
 
-### Frontend (React + Vite + TypeScript) 
+### Frontend (React + Vite + TypeScript)
 ```bash
 cd front/
-npm run dev             # Vite development server
-npm run build           # Production build
-npm run preview         # Preview production build
-npm test                # Vitest tests
-npm run lint            # ESLint check
-npm run typecheck       # TypeScript type checking
+npm run dev           # Vite development server (always port 3000)
+npm run build         # Production build
+npm run lint          # ESLint check
+npm run typecheck     # TypeScript type checking  
+npm test              # Vitest tests
 ```
 
-### Database Operations (Backend)
-```bash
-cd back/
-npm run db:migrate   # Run latest migrations
-npm run db:rollback  # Rollback migrations  
-npm run db:seed      # Run database seeds
-# La base de datos de producción está en DigitalOcean y se conecta automáticamente.
-```
+## Key File Locations
 
-## Project Structure
+- **Backend Source**: `back/src/` (server.ts, controllers/, services/, models/)
+- **Frontend Source**: `front/src/` (App.tsx, components/, pages/, services/)
+- **Database Config**: `back/knexfile.js` (configured for DigitalOcean PostgreSQL)
+- **CI Configuration**: `.github/workflows/ci.yml`
+- **Deployment Config**: `.do/app.yaml`
+- **Excel Processors**: `back/src/processors/` (handles multi-format Excel files)
+- **Media Services**: `back/src/services/` (DigitalOcean Spaces integration)
 
-- `back/`: Backend API (Express + TypeScript + PostgreSQL)
-- `front/`: Frontend SPA (React + TypeScript + Vite)
-- `.github/workflows/ci.yml`: Workflow de Integración Continua.
-- `.do/app.yaml`: Especificación de la aplicación para DigitalOcean App Platform.
-- `GEMINI.md` / `CLAUDE.md`: Guías para los asistentes de IA.
+## Authentication Architecture
 
-## Environment Setup
+The system uses JWT-based authentication with refresh tokens:
+- **Login/Register**: `back/src/controllers/authController.ts`
+- **Middleware**: `back/src/middleware/` (auth, role-based access)
+- **User Models**: `back/src/models/User.ts`
+- **Frontend Auth**: `front/src/contexts/AuthContext.tsx`
 
-### Required Environment Variables
-Las variables de entorno **secretas** (como `DATABASE_URL`, `JWT_SECRET`, etc.) se configuran directamente en el panel de la App de DigitalOcean, en la sección de "Environment Variables" de cada servicio.
+## Excel Processing System
 
-El archivo `.do/app.yaml` gestiona las variables no secretas, como la URL del backend para el frontend (`VITE_API_URL`).
+ChefMax's core feature is intelligent Excel processing:
+- **Format Detection**: `back/src/services/formatDetector.ts`
+- **Processors**: `back/src/processors/` (different supplier formats)
+- **Upload Interface**: `front/src/components/` (drag-drop Excel upload)

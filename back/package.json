@@ -1,0 +1,51 @@
+{
+  "name": "chefmax-back",
+  "version": "1.0.0",
+  "description": "ChefMax Backend - Sistema de gestión de inventarios y cotizaciones multi-formato",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/server.ts",
+    "build": "tsc",
+    "start": "node -r tsconfig-paths/register dist/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "knex migrate:latest",
+    "db:rollback": "knex migrate:rollback",
+    "db:seed": "knex seed:run",
+    "db:reset": "npm run db:rollback && npm run db:migrate && npm run db:seed"
+  },
+  "keywords": [
+    "chefmax",
+    "inventory",
+    "excel-processing",
+    "multi-format",
+    "quotations",
+    "suppliers",
+    "restaurant-equipment"
+  ],
+  "author": "ChefMax Development Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "typescript": "^5.2.2",
+    "knex": "^3.0.1",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.8.10",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "eslint": "^8.54.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
