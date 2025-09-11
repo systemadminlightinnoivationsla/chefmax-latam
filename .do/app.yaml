@@ -1,17 +1,30 @@
-# Nombre de tu aplicación en DigitalOcean
 name: chefmax-platform
-# Región donde se desplegará la aplicación
-region: nyc
+region: nyc3
 
-# Servicios que componen tu aplicación (backend y frontend)
+# GitHub integration
+github:
+  repo: systemadminlightinnoivationsla/chefmax-latam
+  branch: main
+  deploy_on_push: true
+
 services:
-  # --- Backend Service ---
+  # Backend API Service
   - name: api
-    # Construye desde el Dockerfile en la carpeta 'back'
     dockerfile_path: back/Dockerfile
     source_dir: back/
-    # Variables de entorno. Los valores secretos se configuran en el panel de DO.
+    github:
+      repo: systemadminlightinnoivationsla/chefmax-latam
+      branch: main
+      deploy_on_push: true
+    
+    # Environment variables
     envs:
+      - key: NODE_ENV
+        value: production
+        scope: RUN_AND_BUILD_TIME
+      - key: PORT
+        value: "3001"
+        scope: RUN_AND_BUILD_TIME
       - key: DATABASE_URL
         scope: RUN_TIME
         type: SECRET
@@ -21,33 +34,86 @@ services:
       - key: JWT_SECRET
         scope: RUN_TIME
         type: SECRET
-      - key: FRONTEND_URL
+      - key: JWT_REFRESH_SECRET
         scope: RUN_TIME
-        value: ${web.URL} # URL dinámica del frontend
-    # Ruta HTTP para acceder al backend
+        type: SECRET
+      - key: SPACES_ACCESS_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: SPACES_SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: SPACES_BUCKET_NAME
+        value: chefmax-media
+        scope: RUN_TIME
+      - key: SPACES_ENDPOINT
+        value: nyc3.digitaloceanspaces.com
+        scope: RUN_TIME
+      - key: FRONTEND_URL
+        value: ${web.URL}
+        scope: RUN_TIME
+      - key: CORS_ORIGINS
+        value: ${web.URL}
+        scope: RUN_TIME
+    
+    # HTTP configuration
+    http_port: 3001
     routes:
       - path: /api
-    # Configuración de la instancia (puedes ajustarla según tus necesidades)
-    instance_size_slug: basic-xxs
+    
+    # Health check
+    health_check:
+      http_path: /health
+      initial_delay_seconds: 30
+      period_seconds: 10
+      timeout_seconds: 5
+      failure_threshold: 3
+      success_threshold: 1
+    
+    # Resource configuration
     instance_count: 1
+    instance_size_slug: basic-xxs
 
-  # --- Frontend Service ---
+  # Frontend Web Service
   - name: web
-    # Construye desde el Dockerfile en la carpeta 'front'
     dockerfile_path: front/Dockerfile
     source_dir: front/
-    # Variables de entorno para el frontend
+    github:
+      repo: systemadminlightinnoivationsla/chefmax-latam
+      branch: main
+      deploy_on_push: true
+    
+    # Environment variables for build
     envs:
       - key: VITE_API_URL
-        # Apunta dinámicamente a la URL del servicio 'api'
         value: ${api.URL}/api/v1
         scope: BUILD_TIME
-      - key: VITE_STRIPE_PUBLISHABLE_KEY
+      - key: VITE_BACKEND_URL
+        value: ${api.URL}
         scope: BUILD_TIME
-        type: SECRET # Asumiendo que es un secreto
-    # Ruta principal de tu sitio
+      - key: VITE_APP_NAME
+        value: ChefMax LATAM
+        scope: BUILD_TIME
+      - key: VITE_APP_VERSION
+        value: "1.0.0"
+        scope: BUILD_TIME
+      - key: VITE_ENVIRONMENT
+        value: production
+        scope: BUILD_TIME
+    
+    # HTTP configuration
+    http_port: 80
     routes:
       - path: /
-    # Configuración de la instancia
-    instance_size_slug: basic-xxs
+    
+    # Resource configuration
     instance_count: 1
+    instance_size_slug: basic-xxs
+
+# Database (if you need to create one)
+databases:
+  - name: chefmax-db
+    engine: PG
+    size: db-s-1vcpu-1gb
+    num_nodes: 1
+    version: "17"
