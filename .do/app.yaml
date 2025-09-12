@@ -9,8 +9,7 @@ services:
       repo: systemadminlightinnoivationsla/chefmax-latam
       branch: main
       deploy_on_push: true
-    build_command: npm run build
-    run_command: npm start
+    dockerfile_path: back/Dockerfile
     
     # Environment variables
     envs:
@@ -76,7 +75,7 @@ services:
       repo: systemadminlightinnoivationsla/chefmax-latam
       branch: main
       deploy_on_push: true
-    build_command: npm run build
+    dockerfile_path: front/Dockerfile
     
     # Environment variables for build
     envs:
