@@ -1,12 +1,6 @@
 name: chefmax-platform
 region: nyc3
 
-# GitHub integration
-github:
-  repo: systemadminlightinnoivationsla/chefmax-latam
-  branch: main
-  deploy_on_push: true
-
 services:
   # Backend API Service
   - name: api
