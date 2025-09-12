@@ -77,7 +77,6 @@ services:
       branch: main
       deploy_on_push: true
     build_command: npm run build
-    output_dir: /dist
     
     # Environment variables for build
     envs:
