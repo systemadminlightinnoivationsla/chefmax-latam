@@ -8,6 +8,7 @@ services:
     github:
       repo: systemadminlightinnoivationsla/chefmax-latam
       branch: main
+    dockerfile_path: Dockerfile.simple
     
     # Environment variables
     envs:
