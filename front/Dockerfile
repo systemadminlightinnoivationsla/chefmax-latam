@@ -5,23 +5,23 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies (including dev deps for build)
-RUN npm ci
+# Install ALL dependencies first
+RUN npm install
 
 # Copy source code
 COPY . .
 
-# Build the application (ensure vite is available via npx)
-RUN npx vite build
+# Build using direct node_modules path
+RUN ./node_modules/.bin/vite build
 
-# Install serve for production
+# Install serve globally for serving static files
 RUN npm install -g serve
 
-# Remove dev dependencies after build
-RUN npm prune --production && npm cache clean --force
+# Remove dev dependencies after successful build
+RUN npm prune --production
 
 # Expose port
 EXPOSE 80
 
-# Start the application
+# Start the application serving the dist folder
 CMD ["serve", "-s", "dist", "-l", "80"]

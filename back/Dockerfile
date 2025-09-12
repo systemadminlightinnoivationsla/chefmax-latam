@@ -5,20 +5,20 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies (including dev deps for build)
-RUN npm ci
+# Install ALL dependencies first
+RUN npm install
 
 # Copy source code
 COPY . .
 
-# Build the application (ensure TypeScript is available via npx)
-RUN npx tsc
+# Build using direct node_modules path
+RUN ./node_modules/.bin/tsc
 
-# Remove dev dependencies after build
-RUN npm prune --production && npm cache clean --force
+# Remove dev dependencies after successful build
+RUN npm prune --production
 
 # Expose port
 EXPOSE 3001
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["node", "dist/server.js"]
