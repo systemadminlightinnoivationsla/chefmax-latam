@@ -4,12 +4,10 @@ region: nyc3
 services:
   # Backend API Service
   - name: api
-    source_dir: back/
+    source_dir: back
     github:
       repo: systemadminlightinnoivationsla/chefmax-latam
       branch: main
-      deploy_on_push: true
-    dockerfile_path: back/Dockerfile
     
     # Environment variables
     envs:
@@ -70,12 +68,10 @@ services:
 
   # Frontend Web Service
   - name: web
-    source_dir: front/
-    github:
-      repo: systemadminlightinnoivationsla/chefmax-latam
-      branch: main
-      deploy_on_push: true
-    dockerfile_path: front/Dockerfile
+    image:
+      registry_type: DOCR
+      repository: chefmax-backend
+      tag: frontend-hybrid
     
     # Environment variables for build
     envs:
