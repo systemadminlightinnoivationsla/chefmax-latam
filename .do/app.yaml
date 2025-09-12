@@ -4,12 +4,13 @@ region: nyc3
 services:
   # Backend API Service
   - name: api
-    dockerfile_path: back/Dockerfile
     source_dir: back/
     github:
       repo: systemadminlightinnoivationsla/chefmax-latam
       branch: main
       deploy_on_push: true
+    build_command: npm run build
+    run_command: npm start
     
     # Environment variables
     envs:
@@ -70,12 +71,13 @@ services:
 
   # Frontend Web Service
   - name: web
-    dockerfile_path: front/Dockerfile
     source_dir: front/
     github:
       repo: systemadminlightinnoivationsla/chefmax-latam
       branch: main
       deploy_on_push: true
+    build_command: npm run build
+    output_dir: /dist
     
     # Environment variables for build
     envs:
