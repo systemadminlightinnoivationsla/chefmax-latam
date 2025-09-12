@@ -5,20 +5,20 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies (including dev deps for build)
+# Install dependencies (including dev deps for build)
 RUN npm ci
 
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
-
-# Remove dev dependencies after build (keep vite for serve if needed)
-RUN npm ci --only=production && npm cache clean --force
+# Build the application (ensure vite is available via npx)
+RUN npx vite build
 
 # Install serve for production
 RUN npm install -g serve
+
+# Remove dev dependencies after build
+RUN npm prune --production && npm cache clean --force
 
 # Expose port
 EXPOSE 80
