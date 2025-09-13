@@ -1,0 +1,53 @@
+name: chefmax-optimized
+region: nyc3
+
+services:
+  # Backend API Service - Clean & Optimized
+  - name: api
+    github:
+      repo: systemadminlightinnoivationsla/chefmax-optimized
+      branch: main
+    dockerfile_path: Dockerfile
+    
+    # Environment variables
+    envs:
+      - key: NODE_ENV
+        value: production
+        scope: RUN_AND_BUILD_TIME
+      - key: PORT
+        value: "3001"
+        scope: RUN_AND_BUILD_TIME
+    
+    # HTTP configuration
+    http_port: 3001
+    routes:
+      - path: /api
+    
+    # Health check
+    health_check:
+      http_path: /health
+      initial_delay_seconds: 30
+      period_seconds: 10
+      timeout_seconds: 5
+      failure_threshold: 3
+      success_threshold: 1
+    
+    # Resource configuration
+    instance_count: 1
+    instance_size_slug: basic-xxs
+
+  # Frontend Web Service 
+  - name: web
+    image:
+      registry_type: DOCR
+      repository: chefmax-backend
+      tag: frontend-hybrid
+    
+    # HTTP configuration
+    http_port: 80
+    routes:
+      - path: /
+    
+    # Resource configuration
+    instance_count: 1
+    instance_size_slug: basic-xxs
