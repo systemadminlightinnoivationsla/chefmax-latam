@@ -22,6 +22,7 @@ services:
     http_port: 3001
     routes:
       - path: /api
+        preserve_path_prefix: true
     
     # Health check
     health_check:
