@@ -43,6 +43,21 @@ services:
       repository: chefmax-backend
       tag: frontend-hybrid
     
+    # Environment variables pointing to optimized backend
+    envs:
+      - key: VITE_API_URL
+        value: https://chefmax-optimized-y3mj6.ondigitalocean.app/api/v1
+        scope: RUN_TIME
+      - key: VITE_BACKEND_URL
+        value: https://chefmax-optimized-y3mj6.ondigitalocean.app
+        scope: RUN_TIME
+      - key: API_URL
+        value: https://chefmax-optimized-y3mj6.ondigitalocean.app/api/v1
+        scope: RUN_TIME
+      - key: BACKEND_URL
+        value: https://chefmax-optimized-y3mj6.ondigitalocean.app
+        scope: RUN_TIME
+    
     # HTTP configuration
     http_port: 80
     routes:
