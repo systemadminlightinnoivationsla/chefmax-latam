@@ -2,11 +2,11 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy the hotfix server with totalProducts field
-COPY hotfix-server.js ./
+# Copy the fixed server with totalProducts field
+COPY fixed-server.js ./
 
 # Expose port
 EXPOSE 3001
 
 # Start the server
-CMD ["node", "hotfix-server.js"]
+CMD ["node", "fixed-server.js"]
