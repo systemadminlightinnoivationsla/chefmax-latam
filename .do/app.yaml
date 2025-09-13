@@ -5,8 +5,8 @@ services:
   # Backend API Service - Clean & Optimized
   - name: api
     github:
-      repo: systemadminlightinnoivationsla/chefmax-optimized
-      branch: main
+      repo: systemadminlightinnoivationsla/chefmax-latam
+      branch: optimized-clean
     dockerfile_path: Dockerfile
     
     # Environment variables
